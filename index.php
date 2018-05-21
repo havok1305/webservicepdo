@@ -34,12 +34,39 @@ $app->get('/token-validate/{token}', function (Request $request, Response $respo
 });
 
 $app->get('/testedb', function (Request $request, Response $response) {
-    $database = new Database();
-    if($database->getPdo()) {
+    $database = Database::getInstance();
+    if($database) {
         $response->getBody()->write('Foi');
     } else {
         $response->getBody()->write('Erro');
     }
+    return $response;
+});
+
+$app->get('/biblioteca', function (Request $request, Response $response) {
+    $helperBiblioteca = new HelperBiblioteca();
+    var_dump($helperBiblioteca->query());
+});
+
+$app->get('/biblioteca/{id}', function (Request $request, Response $response) {
+    $helperBiblioteca = new HelperBiblioteca();
+    $id = $request->getAttribute('id');
+    var_dump($helperBiblioteca->getByPrimaryKey($id));
+});
+$app->post('/biblioteca', function (Request $request, Response $response) {
+    $helperBiblioteca = new HelperBiblioteca();
+    $body = $request->getParsedBody();
+    $fields = array_keys($body);
+    $values = array_values($body);
+    $result = $helperBiblioteca->insert($fields, $values);
+    if($result) {
+        print_r($result);
+    } else {
+        print_r("ERRO");
+    }
+});
+$app->get('/', function (Request $request, Response $response){
+    $response->getBody()->write('Foi');
     return $response;
 });
 
