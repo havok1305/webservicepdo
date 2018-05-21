@@ -13,12 +13,16 @@ class Database
         $this->host = 'localhost';
         $this->db = 'webservice';
         $this->user = 'root';
-        $this->password = '';
+        $this->password = 'root';
 
-        $dsn = "mysql:dbname={$this->db};host={$this->host}";
-
+        $dsn = "mysql:dbname={$this->db};host={$this->host};charset=utf8";
+        $options = [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+        ];
         try {
-            self::$pdo = new PDO($dsn, $this->user, $this->password);
+            self::$pdo = new PDO($dsn, $this->user, $this->password, $options);
+
         } catch (PDOException $e) {
             echo 'Connection failed: ' . $e->getMessage();
         }

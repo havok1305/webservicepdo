@@ -44,29 +44,32 @@ $app->get('/testedb', function (Request $request, Response $response) {
 });
 
 $app->get('/biblioteca', function (Request $request, Response $response) {
+    $params = $request->getQueryParams();
     $helperBiblioteca = new HelperBiblioteca();
-    var_dump($helperBiblioteca->query());
+    return $response->withJson($helperBiblioteca->query($params));
 });
 
 $app->get('/biblioteca/{id}', function (Request $request, Response $response) {
     $helperBiblioteca = new HelperBiblioteca();
     $id = $request->getAttribute('id');
-    var_dump($helperBiblioteca->getByPrimaryKey($id));
+    return $response->withJson($helperBiblioteca->getByPrimaryKey($id));
 });
 $app->post('/biblioteca', function (Request $request, Response $response) {
     $helperBiblioteca = new HelperBiblioteca();
     $body = $request->getParsedBody();
-    $fields = array_keys($body);
-    $values = array_values($body);
-    $result = $helperBiblioteca->insert($fields, $values);
-    if($result) {
-        print_r($result);
-    } else {
-        print_r("ERRO");
-    }
+    $result = $helperBiblioteca->insert($body);
+    return $response->withJson($result);
 });
+
+$app->put('/biblioteca/{id}', function (Request $request, Response $response) {
+    $helperBiblioteca = new HelperBiblioteca();
+    $body = $request->getParsedBody();
+    $result = $helperBiblioteca->update($body, array('id'=>1));
+    return $response->withJson($result);
+});
+
 $app->get('/', function (Request $request, Response $response){
-    $response->getBody()->write('Foi');
+    $response->getBody()->write('Webservice OK');
     return $response;
 });
 

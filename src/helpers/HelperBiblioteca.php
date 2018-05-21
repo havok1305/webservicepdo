@@ -7,4 +7,8 @@ class HelperBiblioteca extends HelperPDO
     protected $columns = array(
         'id', 'nome', 'excluido'
     );
+    protected $columns_not_null = array(
+        'nome'
+    );
+
 }
