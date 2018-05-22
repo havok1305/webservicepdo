@@ -101,7 +101,7 @@ abstract class HelperPDO {
             return array(
                 'status' => false,
                 'message' => $this->messages['exception'],
-                'exception' => $e->getMessage()
+//                'exception' => $e->getMessage()
             );
         }
 
@@ -153,7 +153,7 @@ abstract class HelperPDO {
             return array(
                 'status' => false,
                 'message' => $this->messages['exception'],
-                'exception' => $e->getMessage()
+//                'exception' => $e->getMessage()
             );
         }
     }
@@ -198,7 +198,7 @@ abstract class HelperPDO {
         return $this->update(array('excluido' => 'S'), $params);
     }
 
-    public function removeInvalidFields($params)
+    private function removeInvalidFields($params)
     {
         $valid_params = array();
         foreach($params as $field => $value) {
@@ -207,7 +207,7 @@ abstract class HelperPDO {
         return $valid_params;
     }
 
-    public function checkNotNullColumns($params)
+    private function checkNotNullColumns($params)
     {
         foreach($this->columns_not_null as $column) {
             //se nao existe a coluna dentro dos parametros

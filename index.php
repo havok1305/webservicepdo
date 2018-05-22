@@ -53,8 +53,9 @@ $app->post('/biblioteca', function (Request $request, Response $response) {
 
 $app->put('/biblioteca/{id}', function (Request $request, Response $response) {
     $helperBiblioteca = new HelperBiblioteca();
+    $id = $request->getAttribute('id');
     $body = $request->getParsedBody();
-    $result = $helperBiblioteca->update($body, array('id'=>1));
+    $result = $helperBiblioteca->update($body, array('id'=>$id));
     return $response->withJson($result);
 });
 
