@@ -151,15 +151,40 @@ abstract class HelperPDO {
         }
     }
 
-    public function delete()
+    public function delete($params)
     {
+        $params = $this->removeInvalidFields($params);
+        $fields = array_keys($params);
+        $values = array_values($params);
+        $sql = "DELETE FROM {$this->table} WHERE ";
+        foreach($fields as $k=>$field) {
+            $sql .= $field . " = ? ";
+            if($k < count($fields)-1) {
+                $sql .= ' AND ';
+            }
+        }
 
+        $stmt = $this->pdo->prepare($sql);
+        try {
+            $stmt->execute($values);
+            if($stmt->rowCount()){
+                return array('status' => true, 'message'=>$this->messages['delete_ok']);
+            } else {
+                return array('status' => false, 'message'=>$this->messages['select_empty']);
+            }
+        } catch (PDOException $e) {
+            return array(
+                'status' => false,
+                'message'=>$this->messages['exception']
+            );
+        }
     }
 
     //apenas atualiza o campo excluido da tabela
-    public function deleteUpdate()
+    public function deleteUpdate($params)
     {
-
+        $params = $this->removeInvalidFields($params);
+        return $this->update(array('excluido'=>'S'), $params);
     }
 
     public function removeInvalidFields($params)

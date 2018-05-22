@@ -33,16 +33,6 @@ $app->get('/token-validate/{token}', function (Request $request, Response $respo
     return $response;
 });
 
-$app->get('/testedb', function (Request $request, Response $response) {
-    $database = Database::getInstance();
-    if($database) {
-        $response->getBody()->write('Foi');
-    } else {
-        $response->getBody()->write('Erro');
-    }
-    return $response;
-});
-
 $app->get('/biblioteca', function (Request $request, Response $response) {
     $params = $request->getQueryParams();
     $helperBiblioteca = new HelperBiblioteca();
@@ -65,6 +55,14 @@ $app->put('/biblioteca/{id}', function (Request $request, Response $response) {
     $helperBiblioteca = new HelperBiblioteca();
     $body = $request->getParsedBody();
     $result = $helperBiblioteca->update($body, array('id'=>1));
+    return $response->withJson($result);
+});
+
+$app->delete('/biblioteca/{id}', function (Request $request, Response $response) {
+    $helperBiblioteca = new HelperBiblioteca();
+    $id = $request->getAttribute('id');
+//    $result = $helperBiblioteca->delete(array('id'=>$id));
+    $result = $helperBiblioteca->deleteUpdate(array('id'=>$id));
     return $response->withJson($result);
 });
 
