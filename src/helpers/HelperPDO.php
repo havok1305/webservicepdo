@@ -15,6 +15,7 @@ abstract class HelperPDO {
         'update_error' => 'Ocorreu um erro durante atualização dos dados',
         'delete_ok' => 'Dados excluídos com sucesso',
         'delete_error' => 'Ocorreu um erro durante a exclusão dos dados',
+        'delete_no_param' => 'Necessário informar pelo menos um parâmetro para exclusão',
         'exception' => 'Ocorreu um erro de banco de dados durante a transação',
         'select_empty' => 'Nenhum dado encontrado com os parâmetros informados'
     );
@@ -138,6 +139,12 @@ abstract class HelperPDO {
         try {
             $stmt->execute($params);
             if($stmt->rowCount()) {
+                //verifica se foi feita uma exclusao por update
+                if(array_key_exists('excluido', $params)) {
+                    if ($params['excluido'] == 's') {
+                       return array('status' => true, 'message' => $this->messages['delete_ok']);
+                    }
+                }
                 return array('status' => true, 'message'=>$this->messages['update_ok']);
             } else {
                 return array('status' => true, 'message'=>$this->messages['update_empty']);
@@ -154,10 +161,14 @@ abstract class HelperPDO {
     public function delete($params)
     {
         $params = $this->removeInvalidFields($params);
+        if (empty($params)) {
+           return array('status' => false, 'message' => $this->messages['delete_no_param']) ;
+        }
+
         $fields = array_keys($params);
         $values = array_values($params);
         $sql = "DELETE FROM {$this->table} WHERE ";
-        foreach($fields as $k=>$field) {
+        foreach($fields as $k => $field) {
             $sql .= $field . " = ? ";
             if($k < count($fields)-1) {
                 $sql .= ' AND ';
@@ -168,14 +179,14 @@ abstract class HelperPDO {
         try {
             $stmt->execute($values);
             if($stmt->rowCount()){
-                return array('status' => true, 'message'=>$this->messages['delete_ok']);
+                return array('status' => true, 'message' => $this->messages['delete_ok']);
             } else {
-                return array('status' => false, 'message'=>$this->messages['select_empty']);
+                return array('status' => false, 'message' => $this->messages['select_empty']);
             }
         } catch (PDOException $e) {
             return array(
                 'status' => false,
-                'message'=>$this->messages['exception']
+                'message' => $this->messages['exception']
             );
         }
     }
@@ -184,13 +195,13 @@ abstract class HelperPDO {
     public function deleteUpdate($params)
     {
         $params = $this->removeInvalidFields($params);
-        return $this->update(array('excluido'=>'S'), $params);
+        return $this->update(array('excluido' => 'S'), $params);
     }
 
     public function removeInvalidFields($params)
     {
         $valid_params = array();
-        foreach($params as $field=>$value) {
+        foreach($params as $field => $value) {
             if(in_array($field, $this->columns)) $valid_params[$field] = $value;
         }
         return $valid_params;
