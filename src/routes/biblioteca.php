@@ -2,36 +2,6 @@
 use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
-require 'vendor/autoload.php';
-
-$config = [
-    'settings' => [
-        'displayErrorDetails' => true
-    ],
-    'secretkey'=>'698ee85b52b7b65dde71e42705f3aa3aa276b173'
-];
-
-$app = new \Slim\App($config);
-$app->get('/token-generate/{palavra}', function (Request $request, Response $response, array $args) {
-    $palavra = $args['palavra'];
-    $helperToken = new HelperToken($this->get('secretkey'));
-    $token = $helperToken->generate($palavra);
-    $response->getBody()->write("Token: $token");
-
-    return $response;
-});
-
-$app->get('/token-validate/{token}', function (Request $request, Response $response) {
-    $token = $request->getAttribute('token');
-    $helperToken = new HelperToken($this->get('secretkey'));
-    if($helperToken->validate($token)){
-        $response->getBody()->write("Token válido");
-    } else {
-        $response->getBody()->write("Token inválido");
-    }
-
-    return $response;
-});
 
 $app->get('/biblioteca', function (Request $request, Response $response) {
     $params = $request->getQueryParams();
@@ -44,6 +14,8 @@ $app->get('/biblioteca/{id}', function (Request $request, Response $response) {
     $id = $request->getAttribute('id');
     return $response->withJson($helperBiblioteca->getByPrimaryKey($id));
 });
+
+
 $app->post('/biblioteca', function (Request $request, Response $response) {
     $helperBiblioteca = new HelperBiblioteca();
     $body = $request->getParsedBody();
@@ -66,10 +38,3 @@ $app->delete('/biblioteca/{id}', function (Request $request, Response $response)
     $result = $helperBiblioteca->deleteUpdate(array('id'=>$id));
     return $response->withJson($result);
 });
-
-$app->get('/', function (Request $request, Response $response){
-    $response->getBody()->write('Webservice OK');
-    return $response;
-});
-
-$app->run();

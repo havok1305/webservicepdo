@@ -1,7 +1,8 @@
 {
     "require": {
         "slim/slim": "^3.0",
-        "lcobucci/jwt": "^3.2"
+        "lcobucci/jwt": "^3.2",
+        "tuupola/slim-jwt-auth": "^2.4"
     },
     "autoload": {
         "classmap": [
