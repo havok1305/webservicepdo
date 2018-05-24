@@ -1,6 +1,6 @@
 <?php
 
-abstract class HelperPDO {
+abstract class AbstractDAO {
     protected $pdo;
     protected $table;
     protected $columns = array();

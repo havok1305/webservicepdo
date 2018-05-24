@@ -1,6 +1,6 @@
 <?php
 
-class HelperBiblioteca extends HelperPDO
+class BibliotecaDAO extends AbstractDAO
 {
     protected $table = 'biblioteca';
     protected $primaryKey = 'id';

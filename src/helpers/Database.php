@@ -2,7 +2,7 @@
 
 class Database
 {
-    protected $db;
+    protected $dbname;
     protected $user;
     protected $password;
     protected $host;
@@ -10,12 +10,12 @@ class Database
 
     public function __construct()
     {
-        $this->host = 'localhost';
-        $this->db = 'webservice';
-        $this->user = 'root';
-        $this->password = 'root';
+        $this->host = getenv('HOST');
+        $this->dbname = getenv('DB_NAME');
+        $this->user = getenv('DB_USER');
+        $this->password = getenv('DB_PASSWORD');
 
-        $dsn = "mysql:dbname={$this->db};host={$this->host};charset=utf8";
+        $dsn = "mysql:dbname={$this->dbname};host={$this->host};charset=utf8";
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
@@ -24,7 +24,7 @@ class Database
             self::$pdo = new PDO($dsn, $this->user, $this->password, $options);
 
         } catch (PDOException $e) {
-            echo 'Connection failed: ' . $e->getMessage();
+//            echo 'Connection failed: ' . $e->getMessage();
         }
     }
 

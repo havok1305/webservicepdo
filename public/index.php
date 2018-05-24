@@ -1,63 +1,30 @@
 <?php
-use \Psr\Http\Message\ServerRequestInterface as Request;
-use \Psr\Http\Message\ResponseInterface as Response;
 
-require '../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
-$config = [
-    'settings' => [
-        'displayErrorDetails' => true
-    ],
-    'secretkey'=>'698ee85b52b7b65dde71e42705f3aa3aa276b173'
-];
+$secretkey = '698ee85b52b7b65dde71e42705f3aa3aa276b173';
+$db_user = 'root';
+$db_password = '';
+$db_host = 'localhost';
+$db_name = 'webservice';
 
-$app = new \Slim\App($config);
+putenv("DB_USER=$db_user");
+putenv("DB_PASSWORD=$db_password");
+putenv("DB_HOST=$db_host");
+putenv("DB_NAME=$db_name");
+putenv("SECRETKEY=$secretkey");
 
-$app->add(new \Slim\Middleware\JwtAuthentication([
-    "rules" => [
-        new Slim\Middleware\JwtAuthentication\RequestPathRule([
-            "path" => "/",
-            "passthrough" => ["/biblioteca", "/admin/ping"],
-        ]),
-        new Slim\Middleware\JwtAuthentication\RequestMethodRule([
-            "ignore" => ["OPTIONS"]
-        ])
-    ],
-    "secret" => "supersecretkeyyoushouldnotcommittogithub",
-    "secure" => false, //permite uso em HTTP
-]));
+// Register settings
+$settings = require __DIR__ . '/../src/settings.php';
 
+// Instantiate app
+$app = new \Slim\App($settings);
 
-$app->get('/token-generate/{palavra}', function (Request $request, Response $response, array $args) {
-    $palavra = $args['palavra'];
-    $helperToken = new HelperToken($this->get('secretkey'));
-    $token = $helperToken->generate($palavra);
-    $response->getBody()->write("Token: $token");
+// Register middleware
+require __DIR__ . '/../src/middleware.php';
 
-    return $response;
-});
+// Register routes
+require __DIR__ . '/../src/routes.php';
 
-$app->get('/token-validate/{token}', function (Request $request, Response $response) {
-    $token = $request->getAttribute('token');
-    $helperToken = new HelperToken($this->get('secretkey'));
-    if($helperToken->validate($token)){
-        $response->getBody()->write("Token válido");
-    } else {
-        $response->getBody()->write("Token inválido");
-    }
-
-    return $response;
-});
-
-
-$app->get('/', function (Request $request, Response $response){
-    $response->getBody()->write('Webservice OK');
-    $token = $request->getAttribute("token");
-    print_r($token);
-    return $response;
-});
-
-require_once '../src/routes/lancamentos.php';
-require_once '../src/routes/biblioteca.php';
-
+// Run app
 $app->run();
