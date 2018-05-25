@@ -11,14 +11,16 @@ $app->get('/auth', function (Request $request, Response $response){
     $header = $request->getHeader('X-Life-Sistemas-Id-Cliente');
     $cliente = $header[0];
 
-    $token = new Token($this->get('issuer'), getenv('SECRETKEY'));
+    $token = new Token($this->get('issuer'), getenv("SECRETKEY"));
 //    $token->setExpirationTime(1);
-//    echo $this->get('secretkey');exit;
     $t = $token->generateToken($cliente);
     $response->getBody()->write($t);
     return $response;
 });
 
+$app->get('/teste', function (Request $request, Response $response) {
+    return $response->withJson(array('oi'=>'mundo'));
+});
 
 $app->get('/validate', function (Request $request, Response $response){
 //    $token = new Token($this->get('issuer'), $this->get('secretkey'));

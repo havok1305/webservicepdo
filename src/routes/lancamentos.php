@@ -8,6 +8,7 @@ $app->get('/lancamentos', function (Request $request, Response $response) {
     $lancamentoDAO = new LancamentoDAO();
     $lancamentos = $lancamentoDAO->query($params);
     $lancamentoDAO->destroyPdo();
+
     return $response->withJson($lancamentos);
 });
 
