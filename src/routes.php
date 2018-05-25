@@ -7,12 +7,14 @@ $app->get('/', function (Request $request, Response $response){
     return $response;
 });
 
-$app->get('/auth/{user}', function (Request $request, Response $response){
-    $user = $request->getAttribute('user');
-    $token = new Token($this->get('issuer'), $this->get('secretkey'));
-    $token->setExpirationTime(1);
+$app->get('/auth', function (Request $request, Response $response){
+    $header = $request->getHeader('X-Life-Sistemas-Id-Cliente');
+    $cliente = $header[0];
+
+    $token = new Token($this->get('issuer'), getenv('SECRETKEY'));
+//    $token->setExpirationTime(1);
 //    echo $this->get('secretkey');exit;
-    $t = $token->generateToken($user);
+    $t = $token->generateToken($cliente);
     $response->getBody()->write($t);
     return $response;
 });

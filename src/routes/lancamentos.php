@@ -3,30 +3,34 @@ use \Psr\Http\Message\ServerRequestInterface as Request;
 use \Psr\Http\Message\ResponseInterface as Response;
 
 //Busca todos os lancamentos do cliente informado
-$app->get('/{idcliente}/lancamentos', function (Request $request, Response $response) {
-    $idcliente = $request->getAttribute('idcliente');
-//    $params = $request->getQueryParams();
-    $params = array($idcliente);
-    return $response->withJson($params);
+$app->get('/lancamentos', function (Request $request, Response $response) {
+    $params = $request->getQueryParams();
+    $lancamentoDAO = new LancamentoDAO();
+    $lancamentos = $lancamentoDAO->query($params);
+    $lancamentoDAO->destroyPdo();
+    return $response->withJson($lancamentos);
 });
 
-$app->get('/{idcliente}/lancamentos/{codlancamento}', function (Request $request, Response $response) {
-    $idcliente = $request->getAttribute('idcliente');
-    $lancamentoDAO = new LancamentoDAO($idcliente);
+//Busca pelo codigo de lancamento
+$app->get('/lancamentos/{codlancamento}', function (Request $request, Response $response) {
+    $lancamentoDAO = new LancamentoDAO();
+
     $codlancamento = $request->getAttribute('codlancamento');
     $lancamento = $lancamentoDAO->getByPrimaryKey($codlancamento);
     return $response->withJson($lancamento);
 });
 
-$app->post('/{idcliente}/lancamentos/', function (Request $request, Response $response) {
+//Cria novo lancamento
+$app->post('/lancamentos', function (Request $request, Response $response) {
 
 });
 
-$app->put('/{idcliente}/lancamentos', function (Request $request, Response $response) {
+//Atualiza um lancamento
+$app->put('/lancamentos/{codlancamento}', function (Request $request, Response $response) {
 
 });
 
-$app->delete('/{idcliente}/lancamentos', function (Request $request, Response $response) {
+$app->delete('/lancamentos', function (Request $request, Response $response) {
 
 });
 

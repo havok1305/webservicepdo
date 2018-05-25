@@ -3,26 +3,41 @@
 class LancamentoDAO extends AbstractDAO
 {
     protected $codcliente;
-    protected $table = 'filancamentos';
-    protected $primaryKey = 'codlancamentos';
+    protected $table = 'FILANCAMENTOS';
+    protected $primaryKey = 'CODLANCAMENTOS';
     protected $columns = array(
-        'codlancamentos', 'datahorainclusao',
-        'respinclusao','datahoraalteracao',
-        'respalteracao','codempresa',
-        'valororiginal','datavencimento',
-        'parcela','plano',
-        'valorbaixado','databaixa',
-        'desconto','percdesconto',
-        'acrescimos','multa',
-        'juros','msgboleto',
-        'situacao','codigobarra',
-        'nossonumero','responsavelbaixa',
-        'obs','codbaixa',
-        'datacancela','justcancela',
-        'respcancela','datahoraestorno',
-        'justestorno','estornadopor',
-        'excluido','datahoraexclusao',
-        'excluidopor'
+        'CODLANCAMENTOS', 'DATAHORAINCLUSAO',
+        'RESPINCLUSAO','DATAHORAALTERACAO',
+        'RESPALTERACAO','CODTIPODOCUMENTO',
+        'CODDADOSCONTA','GRA_CODCURSO',
+        'GRA_CODALUNOCURSO','GRA_CODPERIODOLETIVO',
+        'GRA_CODRESPFINANCEIRO','POS_CODCURSO',
+        'POS_CODALUNOCURSO','POS_CODPERIODOLETIVO',
+        'POS_CODRESPFINANCEIRO',
+        'TEC_CODCURSO','TEC_CODALUNOCURSO',
+        'TEC_CODPERIODOLETIVO','TEC_CODRESPFINANCEIRO',
+        'MATRICULA','CPF',
+        'TIPOCURSO','VALORORIGINAL',
+        'DATAVENCIMENTO','PARCELA',
+        'VALORBAIXADO','DATABAIXA',
+        'DESCONTO','DESCONTOBOLSA',
+        'PERCDESCONTO','ACRESCIMOS',
+        'TIPOPROTESTO','DIASPROTESTO',
+        'MSGBOLETO','MENSAGEM1',
+        'MENSAGEM2','MENSAGEM3',
+        'MENSAGEM4','MENSAGEM5',
+        'SITUACAO','REGISTRADO',
+        'IPTE','CODIGOBARRA',
+        'NOSSONUMERO','CODIGOTIPOBAIXA',
+        'LIBERADODIFPAGAMENTO','RESPONSAVELBAIXA',
+        'OBS','DATACANCELA',
+        'JUSTCANCELA','RESPCANCELA',
+        'DATADESCANCELA','JUSTDESCANCELA',
+        'ESTORNADOPOR','DATAHORAESTORNO',
+        'JUSTESTORNO','TEMPOBAIXADO',
+        'RESPDESCANCELA','EXCLUIDO',
+        'DATAHORAEXCLUSAO',
+        'EXCLUIDOPOR','JUSTEXCLUSAO'
     );
 
     protected $columns_not_null = array(
@@ -30,11 +45,4 @@ class LancamentoDAO extends AbstractDAO
         'codempresa'
     );
 
-    public function __construct($codcliente = null)
-    {
-        parent::__construct();
-        if(!empty($codcliente)) {
-            $this->codcliente = $codcliente;
-        }
-    }
 }

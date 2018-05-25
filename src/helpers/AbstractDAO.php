@@ -25,6 +25,11 @@ abstract class AbstractDAO {
         $this->pdo = Database::getInstance();
     }
 
+    public function destroyPdo() {
+        $this->pdo = null;
+        Database::destroyInstance();
+    }
+
     public function query($params = array())
     {
         $sql = "SELECT * FROM {$this->table}";
@@ -202,6 +207,7 @@ abstract class AbstractDAO {
     {
         $valid_params = array();
         foreach($params as $field => $value) {
+            $field = strtoupper($field);
             if(in_array($field, $this->columns)) $valid_params[$field] = $value;
         }
         return $valid_params;

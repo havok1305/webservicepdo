@@ -10,7 +10,7 @@ class Database
 
     public function __construct()
     {
-        $this->host = getenv('HOST');
+        $this->host = getenv('DB_HOST');
         $this->dbname = getenv('DB_NAME');
         $this->user = getenv('DB_USER');
         $this->password = getenv('DB_PASSWORD');
@@ -33,8 +33,14 @@ class Database
         if(!isset(self::$pdo)) {
             new Database();
         }
-
         return self::$pdo;
+    }
+
+    public static function destroyInstance()
+    {
+        if(isset(self::$pdo)) {
+            self::$pdo = null;
+        }
     }
 
 }
