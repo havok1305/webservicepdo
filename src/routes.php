@@ -9,7 +9,7 @@ $app->get('/', function (Request $request, Response $response){
 
 //TODO Remover essa rota para producao
 $app->get('/auth', function (Request $request, Response $response){
-    $header = $request->getHeader('X-Life-Sistemas-Id-Cliente');
+    $header = $request->getHeader($this->get('customHeader'));
     $cliente = $header[0];
 
     $token = new Token($this->get('issuer'), getenv("SECRETKEY"));
@@ -20,7 +20,7 @@ $app->get('/auth', function (Request $request, Response $response){
 });
 
 $app->post('/auth', function (Request $request, Response $response) {
-    $header = $request->getHeader('X-Life-Sistemas-Id-Cliente');
+    $header = $request->getHeader($this->get('customHeader'));
     $cliente = $header[0];
 
     $body = $request->getParsedBody();

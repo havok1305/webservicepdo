@@ -2,6 +2,18 @@
 
 $container = $app->getContainer();
 
+//TODO Testar CORS
+$container['EnableCors'] = function ($c) {
+    return function ($request, $response, $next) use ($c) {
+        $response = $next($request, $response);
+        $customHeader = $c->get('customHeader');
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', '*')
+            ->withHeader('Access-Control-Allow-Headers', "X-Requested-With, Content-Type, Accept, Origin, Authorization, {$customHeader}")
+            ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    };
+};
+
 // Realiza a autenticacao usando o token
 $container['JwtAuthentication'] = function ($c) {
     return new \Slim\Middleware\JwtAuthentication([
@@ -27,7 +39,7 @@ $container['JwtAuthentication'] = function ($c) {
 // Lê o arquivo de configurações config.ini para determinar qual o cliente que está fazendo a requisição
 $container['ParseConfig'] = function ($c) {
     return function ($request, $response, $next) use ($c) {
-        $header = $request->getHeader('X-Life-Sistemas-Id-Cliente');
+        $header = $request->getHeader($c->get('customHeader'));
         //verifica se o cabecalho customizado foi informado o id do cliente
         if(empty($header)) {
             $response = $response->withJson(array('status'=>false, 'message' => 'Necessário informar o ID do Cliente no cabeçalho.'));
@@ -92,13 +104,14 @@ $container['FieldsToUpperCase'] = function ($c) {
 };
 
 // Ordem de execução do middleware: LIFE (Last In First Executed)
-// 1º ParseConfig
-// 2º JwtAuthentication
-// 3º FieldsToUpperCase
-
+// 1º EnableCors
+// 2º ParseConfig
+// 3º JwtAuthentication
+// 4º FieldsToUpperCase
 
 $app->add('FieldsToUpperCase');
 $app->add('JwtAuthentication');
 $app->add('ParseConfig');
+$app->add('EnableCors');
 
 
