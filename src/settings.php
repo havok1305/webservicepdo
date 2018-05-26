@@ -3,5 +3,6 @@ return [
     'settings' => [
         'displayErrorDetails' => true,
     ],
-    'issuer'=>'Life Sistemas'
+    'issuer'=>'Life Sistemas',
+    'customHeader'=>'X-Life-Sistemas-Id-Cliente'
 ];

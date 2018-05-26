@@ -7,6 +7,7 @@ $app->get('/', function (Request $request, Response $response){
     return $response;
 });
 
+//TODO Remover essa rota para producao
 $app->get('/auth', function (Request $request, Response $response){
     $header = $request->getHeader('X-Life-Sistemas-Id-Cliente');
     $cliente = $header[0];
