@@ -2,6 +2,7 @@
 
 $container = $app->getContainer();
 
+// Realiza a autenticacao usando o token
 $container['JwtAuthentication'] = function ($c) {
     return new \Slim\Middleware\JwtAuthentication([
         "rules" => [
@@ -23,6 +24,7 @@ $container['JwtAuthentication'] = function ($c) {
     ]);
 };
 
+// Lê o arquivo de configurações config.ini para determinar qual o cliente que está fazendo a requisição
 $container['ParseConfig'] = function ($c) {
     return function ($request, $response, $next) use ($c) {
         $header = $request->getHeader('X-Life-Sistemas-Id-Cliente');
@@ -67,6 +69,35 @@ $container['ParseConfig'] = function ($c) {
     };
 };
 
+// Converte os campos do corpo da requisição para maiusculo. Necessário para o banco de dados
+$container['FieldsToUpperCase'] = function ($c) {
+    return function ($request, $response, $next) use ($c) {
+        if($request->isPost()) {
+            $body = $request->getParsedBody();
+            $fields = array_keys($body);
+            $newBody = array();
+            foreach($fields as $field) {
+                $temp = $body[$field];
+                $newBody[strtoupper($field)] = $temp;
+            }
+            $request = $request->withParsedBody($newBody);
+
+            $response = $next($request, $response, $next);
+//            return $response->getParsedBody();
+        } else {
+            $response = $next($request, $response, $next);
+        }
+        return $response;
+    };
+};
+
+// Ordem de execução do middleware: LIFE (Last In First Executed)
+// 1º ParseConfig
+// 2º JwtAuthentication
+// 3º FieldsToUpperCase
+
+
+$app->add('FieldsToUpperCase');
 $app->add('JwtAuthentication');
 $app->add('ParseConfig');
 

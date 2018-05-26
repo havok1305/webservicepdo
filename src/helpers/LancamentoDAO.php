@@ -41,8 +41,11 @@ class LancamentoDAO extends AbstractDAO
     );
 
     protected $columns_not_null = array(
-        'datahorainclusao','respinclusao',
-        'codempresa'
+        'DATAHORAINCLUSAO', 'RESPINCLUSAO',
+        'CODTIPODOCUMENTO', 'CODDADOSCONTA',
+        'MATRICULA', 'TIPOCURSO',
+        'VALORBAIXADO', 'CODIGOTIPOBAIXA',
+        'LIBERADODIFPAGAMENTO', ''
     );
 
 }

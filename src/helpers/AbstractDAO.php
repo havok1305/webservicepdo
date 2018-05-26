@@ -8,16 +8,17 @@ abstract class AbstractDAO {
     protected $primaryKey;
 
     protected $messages = array(
-        'insert_ok' => 'Dados inseridos com sucesso',
-        'insert_error' => 'Ocorreu um erro durante inserção dos dados',
-        'update_ok' => 'Dados atualizados com sucesso',
-        'update_empty' => 'A transação ocorreu corretamente, porém nenhum dado foi atualizado',
-        'update_error' => 'Ocorreu um erro durante atualização dos dados',
-        'delete_ok' => 'Dados excluídos com sucesso',
-        'delete_error' => 'Ocorreu um erro durante a exclusão dos dados',
-        'delete_no_param' => 'Necessário informar pelo menos um parâmetro para exclusão',
-        'exception' => 'Ocorreu um erro de banco de dados durante a transação',
-        'select_empty' => 'Nenhum dado encontrado com os parâmetros informados'
+        'insert_ok' => 'Dados inseridos com sucesso.',
+        'insert_error' => 'Ocorreu um erro durante inserção dos dados.',
+        'update_ok' => 'Dados atualizados com sucesso.',
+        'update_empty' => 'A transação ocorreu corretamente, porém nenhum dado foi atualizado.',
+        'update_error' => 'Ocorreu um erro durante atualização dos dados.',
+        'delete_ok' => 'Dados excluídos com sucesso.',
+        'delete_error' => 'Ocorreu um erro durante a exclusão dos dados.',
+        'delete_no_param' => 'Necessário informar pelo menos um parâmetro para exclusão.',
+        'exception' => 'Ocorreu um erro de banco de dados durante a transação.',
+        'select_empty' => 'Nenhum dado encontrado com os parâmetros informados.',
+        'select_ok' => 'Busca efetuada com sucesso.'
     );
 
     public function __construct()
@@ -28,6 +29,15 @@ abstract class AbstractDAO {
     public function destroyPdo() {
         $this->pdo = null;
         Database::destroyInstance();
+    }
+
+    public function setMessages($messages) {
+        $this->messages = $messages;
+        return $this->messages;
+    }
+
+    public function setMessage($name, $value) {
+        $this->messages[$name] = $value;
     }
 
     public function query($params = array())
@@ -52,12 +62,32 @@ abstract class AbstractDAO {
             $query = $stmt->execute(array_values($params));
             $result = $stmt->fetchAll();
 
-            if ($query) {
-                return $result;
+//            $stmt->debugDumpParams();exit;
+            if (count($result)) {
+                return array('status' => true, 'message' => $this->messages['select_ok'], 'result' => $result);
             } else {
-                return array('status' => true, 'message' => $this->messages['select_empty']);
+                return array('status' => false, 'message' => $this->messages['select_empty']);
             }
         } catch (PDOException $e) {
+            return array(
+                'status'=>false,
+                'message'=>$this->messages['exception'],
+                'exception'=>$e->getMessage()
+            );
+        }
+    }
+
+    public function rawQuery($sql, $values) {
+        $stmt = $this->pdo->prepare($sql);
+        try{
+            $stmt->execute($values);
+            $result = $stmt->fetchAll();
+            if (count($result)) {
+                return array('status' => true, 'message' => $this->messages['select_ok'], 'result' => $result);
+            } else {
+                return array('status' => false, 'message' => $this->messages['select_empty']);
+            }
+        }catch (PDOException $e) {
             return array(
                 'status'=>false,
                 'message'=>$this->messages['exception'],
@@ -70,10 +100,12 @@ abstract class AbstractDAO {
     {
         $result = $this->query(array($this->primaryKey => $value));
         if(!empty($result)) {
-            return $result[0];
-        } else {
-            return array('message' => $this->messages['select_empty']);
+            if($result['status']) {
+                $result['result'] = $result['result'][0];
+                return $result;
+            }
         }
+        return $result;
     }
 
     public function insert($params)
@@ -97,8 +129,8 @@ abstract class AbstractDAO {
             $stmt->execute($values);
             $id = $this->pdo->lastInsertId();
             if($id) {
-                $entity = $this->getByPrimaryKey($id);
-                return array('status' => true, 'message' => $this->messages['insert_ok'], 'entity' => $entity);
+                $result = $this->getByPrimaryKey($id);
+                return array('status' => true, 'message' => $this->messages['insert_ok'], 'result' => $result);
             } else {
                 return array('status' => false, 'message' => $this->messages['insert_error']);
             }

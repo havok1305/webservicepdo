@@ -23,7 +23,7 @@ $app->get('/lancamentos/{codlancamento}', function (Request $request, Response $
 
 //Cria novo lancamento
 $app->post('/lancamentos', function (Request $request, Response $response) {
-
+    return $response->withJson($request->getParsedBody());
 });
 
 //Atualiza um lancamento

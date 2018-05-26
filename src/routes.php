@@ -18,15 +18,24 @@ $app->get('/auth', function (Request $request, Response $response){
     return $response;
 });
 
-$app->get('/teste', function (Request $request, Response $response) {
-    return $response->withJson(array('oi'=>'mundo'));
-});
+$app->post('/auth', function (Request $request, Response $response) {
+    $header = $request->getHeader('X-Life-Sistemas-Id-Cliente');
+    $cliente = $header[0];
 
-$app->get('/validate', function (Request $request, Response $response){
-//    $token = new Token($this->get('issuer'), $this->get('secretkey'));
-    $t = $request->getAttribute('token');
-    return $response->withJson($t);
+    $body = $request->getParsedBody();
+
+    if(isset($body['LOGIN']) && isset($body['SENHA'])) {
+        $usuarioDAO = new UsuarioDAO();
+        $resultado = $usuarioDAO->login($body['LOGIN'], $body['SENHA']);
+        if($resultado['status']) {
+            $token = new Token($this->get('issuer'), getenv("SECRETKEY"));
+
+            $t = $token->generateToken($cliente);
+            $resultado['token'] = $t;
+        }
+        return $response->withJson($resultado);
+    }
+    return $response->withJson(array('status'=>false, 'message'=>'Não foi possível autenticar usuário.'));
 });
 
 require __DIR__ . '/../src/routes/lancamentos.php';
-require __DIR__ . '/../src/routes/biblioteca.php';
