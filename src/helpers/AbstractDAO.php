@@ -44,22 +44,75 @@ abstract class AbstractDAO {
     {
         $sql = "SELECT * FROM {$this->table}";
 
+        $paramsOrderBy = '';
+        if(array_key_exists('orderby', $params)) {
+            $paramsOrderBy = $params['orderby'];
+            unset($params['orderby']);
+        }
+
+        $paramsLimit = '';
+        if(array_key_exists('limit', $params)) {
+            $paramsLimit = $params['limit'];
+            unset($params['limit']);
+        }
+
+        $params = $this->removeInvalidFields($params);
+        $fields = array_keys($params);
+        $values = array_values($params);
         if(!empty($params)) {
             $sql .= " WHERE ";
-            $fields = array_keys($params);
             foreach($fields as $k=>$field) {
-                $sql .= $field . " = ? ";
+                $value = $values[$k];
+                $aux_op = $value[0];
+
+                switch ($aux_op) {
+                    case '>':
+                        $op = '>';
+                        $value = str_replace('>','',$value);
+                        break;
+                    case '<':
+                        $op = '<';
+                        $value = str_replace('<','',$value);
+                        break;
+                    case '*':
+                        $op = 'LIKE';
+                        $value = str_replace('*','',$value);
+                        $value = "%".$value."%";
+                        break;
+                    default:
+                        $op = '=';
+                        break;
+                }
+                $values[$k] = $value;
+                $sql .= $field . " " . $op . " ? ";
                 if($k < count($params)-1) {
                     $sql .= ' AND ';
                 }
             }
         }
 
+        //constroi order by
+        if($paramsOrderBy != ''){
+            $paramsOrderBy = explode(',',$paramsOrderBy);
+            $sql = $this->buildOrderBy($sql, $paramsOrderBy);
+        }
+
+        //constroi limit
+        if($paramsLimit != '') {
+            $paramsLimit = explode(',', $paramsLimit);
+            if(count($paramsLimit) >= 1) {
+                $limit = $paramsLimit[0];
+                $offset = null;
+                if(count($paramsLimit) > 1) {
+                    $offset = $paramsLimit[1];
+                }
+                $sql = $this->buildLimit($sql, $limit, $offset);
+            }
+        }
+//        echo $sql;exit;
         $stmt = $this->pdo->prepare($sql);
-
         try {
-
-            $query = $stmt->execute(array_values($params));
+            $stmt->execute($values);
             $result = $stmt->fetchAll();
 
 //            $stmt->debugDumpParams();exit;
@@ -72,11 +125,41 @@ abstract class AbstractDAO {
             return array(
                 'status'=>false,
                 'message'=>$this->messages['exception'],
-                'exception'=>$e->getMessage()
+//                'exception'=>$e->getMessage()
             );
         }
     }
+    private function buildLimit($sql, $limit, $offset = null) {
+        if(is_numeric($limit)) {
+            $sql .= " LIMIT " . $limit;
+            if(is_numeric($offset)) {
+                $sql .= " OFFSET " . $offset;
+            }
+        }
+        return $sql;
+    }
+    private function buildOrderBy($sql, $params) {
+        $finalParams = array();
+        foreach($params as $k=>$param){
 
+            $param = trim($param);
+            $aux = $param[0];
+            $param = str_replace('+', '', $param);
+            $param = str_replace('-', '', $param);
+            if(in_array($param, $this->columns)) {
+                if($aux=='-'){
+                    $param .= " DESC";
+                }else{
+                    $param .= " ASC";
+                }
+                $finalParams[] = $param;
+            }
+        }
+        if(count($finalParams)) {
+            $sql .= " ORDER BY " . implode(', ', $finalParams);
+        }
+        return $sql;
+    }
     public function rawQuery($sql, $values) {
         $stmt = $this->pdo->prepare($sql);
         try{
@@ -91,7 +174,7 @@ abstract class AbstractDAO {
             return array(
                 'status'=>false,
                 'message'=>$this->messages['exception'],
-                'exception'=>$e->getMessage()
+//                'exception'=>$e->getMessage()
             );
         }
     }
