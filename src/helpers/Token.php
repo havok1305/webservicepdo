@@ -18,7 +18,7 @@ class Token
         $this->expiration = $expiration;
     }
 
-    public function generateToken($user)
+    public function generateToken($data)
     {
         $now = new DateTime();
         $future = new DateTime("+{$this->expiration} minutes");
@@ -43,11 +43,12 @@ class Token
             "iat" => $iat,
             "nbf" => $nbf,
             "exp" => $exp,
-            "jti" => $jti,
-            "sub" => $user
-         ];
-         $secret = $this->secret;
-         $token = JWT::encode($payload, $secret, "HS256");
-         return $token;
+            "jti" => $jti
+        ];
+
+        $payload = array_merge($payload, $data);
+        $secret = $this->secret;
+        $token = JWT::encode($payload, $secret, "HS256");
+        return $token;
     }
 }

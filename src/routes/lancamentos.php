@@ -7,7 +7,6 @@ $app->get('/lancamentos', function (Request $request, Response $response) {
     $params = $request->getQueryParams();
     $lancamentoDAO = new LancamentoDAO();
     $lancamentos = $lancamentoDAO->query($params);
-    $lancamentoDAO->destroyPdo();
 
     return $response->withJson($lancamentos);
 });
@@ -23,15 +22,25 @@ $app->get('/lancamentos/{codlancamento}', function (Request $request, Response $
 
 //Cria novo lancamento
 $app->post('/lancamentos', function (Request $request, Response $response) {
-    return $response->withJson($request->getParsedBody());
+    $lancamentoDAO = new LancamentoDAO();
+    $body = $request->getParsedBody();
+    $result = $lancamentoDAO->insert($body);
+    return $response->withJson($result);
 });
 
 //Atualiza um lancamento
 $app->put('/lancamentos/{codlancamento}', function (Request $request, Response $response) {
-
+    $lancamentoDAO = new LancamentoDAO();
+    $id = $request->getAttribute('codlancamento');
+    $body = $request->getParsedBody();
+    $result = $lancamentoDAO->update($body, array('CODLANCAMENTOS'=>$id));
+    return $response->withJson($result);
 });
 
 $app->delete('/lancamentos', function (Request $request, Response $response) {
-
+    $lancamentoDAO = new LancamentoDAO();
+    $body = $request->getParsedBody();
+    $result = $lancamentoDAO->deleteUpdate($body);
+    return $response->withJson($result);
 });
 

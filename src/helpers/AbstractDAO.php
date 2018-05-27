@@ -26,17 +26,20 @@ abstract class AbstractDAO {
         $this->pdo = Database::getInstance();
     }
 
-    public function destroyPdo() {
+    public function destroyPdo()
+    {
         $this->pdo = null;
         Database::destroyInstance();
     }
 
-    public function setMessages($messages) {
+    public function setMessages($messages)
+    {
         $this->messages = $messages;
         return $this->messages;
     }
 
-    public function setMessage($name, $value) {
+    public function setMessage($name, $value)
+    {
         $this->messages[$name] = $value;
     }
 
@@ -129,7 +132,8 @@ abstract class AbstractDAO {
             );
         }
     }
-    private function buildLimit($sql, $limit, $offset = null) {
+    private function buildLimit($sql, $limit, $offset = null)
+    {
         if(is_numeric($limit)) {
             $sql .= " LIMIT " . $limit;
             if(is_numeric($offset)) {
@@ -138,7 +142,8 @@ abstract class AbstractDAO {
         }
         return $sql;
     }
-    private function buildOrderBy($sql, $params) {
+    private function buildOrderBy($sql, $params)
+    {
         $finalParams = array();
         foreach($params as $k=>$param){
 
@@ -160,7 +165,8 @@ abstract class AbstractDAO {
         }
         return $sql;
     }
-    public function rawQuery($sql, $values) {
+    public function rawQuery($sql, $values)
+    {
         $stmt = $this->pdo->prepare($sql);
         try{
             $stmt->execute($values);
@@ -194,10 +200,11 @@ abstract class AbstractDAO {
     public function insert($params)
     {
         $params = $this->removeInvalidFields($params);
-        if(!$this->checkNotNullColumns($params)) {
+        $nullColumns = $this->checkNotNullColumns($params);
+        if(count($nullColumns)) {
             return array(
                 'status' => false,
-                'message' => "As colunas a seguir são obrigatórias: ".implode(', ', $this->columns_not_null)
+                'message' => "As colunas a seguir são obrigatórias e não foram informadas: ".implode(', ', $nullColumns)
             );
         }
         $fields = array_keys($params);
@@ -213,7 +220,7 @@ abstract class AbstractDAO {
             $id = $this->pdo->lastInsertId();
             if($id) {
                 $result = $this->getByPrimaryKey($id);
-                return array('status' => true, 'message' => $this->messages['insert_ok'], 'result' => $result);
+                return array('status' => true, 'message' => $this->messages['insert_ok'], 'result' => $result['result']);
             } else {
                 return array('status' => false, 'message' => $this->messages['insert_error']);
             }
@@ -330,18 +337,23 @@ abstract class AbstractDAO {
 
     private function checkNotNullColumns($params)
     {
+        $nullColumns = array();
         foreach($this->columns_not_null as $column) {
             //se nao existe a coluna dentro dos parametros
             if(!array_key_exists($column, $params)) {
-                return false;
+                $nullColumns[] = $column;
             } else {
                 //se existe a coluna nos parametros, mas ela esta vazia
                 $value = $params[$column];
                 if(is_null($value)) {
-                    return false;
+                    $nullColumns[] = $column;
                 }
             }
         }
-        return true;
+        return $nullColumns;
+    }
+    public static function getDateTimeNow()
+    {
+        return date('Y-m-d H:i:s');
     }
 }

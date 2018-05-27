@@ -14,7 +14,10 @@ $app->get('/auth', function (Request $request, Response $response){
 
     $token = new Token($this->get('issuer'), getenv("SECRETKEY"));
 //    $token->setExpirationTime(1);
-    $t = $token->generateToken($cliente);
+    $data = array(
+        'sub' => $cliente,
+    );
+    $t = $token->generateToken($data);
     $response->getBody()->write($t);
     return $response;
 });
@@ -26,12 +29,18 @@ $app->post('/auth', function (Request $request, Response $response) {
     $body = $request->getParsedBody();
 
     if(isset($body['LOGIN']) && isset($body['SENHA'])) {
+        $login = $body['LOGIN'];
+        $senha = $body['SENHA'];
         $usuarioDAO = new UsuarioDAO();
-        $resultado = $usuarioDAO->login($body['LOGIN'], $body['SENHA']);
+        $resultado = $usuarioDAO->login($login, $senha);
         if($resultado['status']) {
             $token = new Token($this->get('issuer'), getenv("SECRETKEY"));
+            $data = array(
+                'sub' => $cliente,
+                'user' => $login
+            );
 
-            $t = $token->generateToken($cliente);
+            $t = $token->generateToken($data);
             $resultado['token'] = $t;
         }
         return $response->withJson($resultado);
