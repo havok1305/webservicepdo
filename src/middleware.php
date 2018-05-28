@@ -73,6 +73,7 @@ $container['ParseConfig'] = function ($c) {
                     foreach($array_params as $param) {
                         putenv(strtoupper($param ) . "=" . $config_file[$param]);
                     }
+                    putenv("CLIENTE=".$idcliente);
                     $response = $next($request, $response, $next);
                 }
             }

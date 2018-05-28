@@ -6,6 +6,7 @@ abstract class AbstractDAO {
     protected $columns = array();
     protected $columns_not_null = array();
     protected $primaryKey;
+    protected $service;
 
     protected $messages = array(
         'insert_ok' => 'Dados inseridos com sucesso.',
@@ -21,9 +22,14 @@ abstract class AbstractDAO {
         'select_ok' => 'Busca efetuada com sucesso.'
     );
 
-    public function __construct()
+    public function __construct($cliente)
     {
         $this->pdo = Database::getInstance();
+        $tables = new Tabelas($cliente);
+        $this->table = $tables->getNomeTabela($this->service);
+        $this->primaryKey = $tables->getPrimaryKey($this->service);
+        $this->columns = $tables->getColunas($this->service);
+        $this->columns_not_null= $tables->getColunasNotNull($this->service);
     }
 
     public function destroyPdo()

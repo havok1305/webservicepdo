@@ -7,21 +7,6 @@ $app->get('/', function (Request $request, Response $response){
     return $response;
 });
 
-//TODO Remover essa rota para producao
-$app->get('/auth', function (Request $request, Response $response){
-    $header = $request->getHeader($this->get('customHeader'));
-    $cliente = $header[0];
-
-    $token = new Token($this->get('issuer'), getenv("SECRETKEY"));
-//    $token->setExpirationTime(1);
-    $data = array(
-        'sub' => $cliente,
-    );
-    $t = $token->generateToken($data);
-    $response->getBody()->write($t);
-    return $response;
-});
-
 $app->post('/auth', function (Request $request, Response $response) {
     $header = $request->getHeader($this->get('customHeader'));
     $cliente = $header[0];
@@ -31,7 +16,7 @@ $app->post('/auth', function (Request $request, Response $response) {
     if(isset($body['LOGIN']) && isset($body['SENHA'])) {
         $login = $body['LOGIN'];
         $senha = $body['SENHA'];
-        $usuarioDAO = new UsuarioDAO();
+        $usuarioDAO = new UsuarioDAO(getenv("CLIENTE"));
         $resultado = $usuarioDAO->login($login, $senha);
         if($resultado['status']) {
             $token = new Token($this->get('issuer'), getenv("SECRETKEY"));

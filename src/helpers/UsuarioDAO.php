@@ -2,26 +2,7 @@
 
 class UsuarioDAO extends AbstractDAO
 {
-    protected $codcliente;
-    protected $table = 'OUSUARIOS';
-    protected $primaryKey = 'CODUSUARIO';
-    protected $columns = array(
-        'CODUSUARIO', 'CODPESSOA',
-        'CODCOLIGADA', 'CODPERFIL',
-        'DATAHORACRIACAO', 'RESPCRIACAO',
-        'LOGIN', 'SENHA',
-        'DATASENHA', 'RESPSENHA',
-        'ULTIMOACESSO', 'TIPO',
-        'ALTERALOGIN', 'DATAHORALOGIN',
-        'ATIVO', 'EXCLUIDO',
-        'DATAHORAEXCLUSAO', 'EXCLUIDOPOR'
-    );
-    protected $columns_not_null = array(
-        'CODPESSOA','CODCOLIGADA',
-        'DATAHORACRIACAO', 'LOGIN',
-        'LOGIN', 'SENHA',
-        'TIPO', 'ALTERALOGIN'
-    );
+    protected $service = 'usuarios';
 
     public function login($user, $pass) {
 
@@ -31,6 +12,4 @@ class UsuarioDAO extends AbstractDAO
         $sql = "SELECT CODUSUARIO, LOGIN FROM {$this->table} WHERE LOGIN = ? AND SENHA = PASSWORD(?)";
         return $this->rawQuery($sql, [$user, $pass]);
     }
-
-
 }
